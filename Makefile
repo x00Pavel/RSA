@@ -1,11 +1,11 @@
-CXX=g++
+CXX=g++-8
 #CXX=clang
 XLOGINXX=xyadlo00
 
 OBJ=src/*
 BIN=kry
 
-CXXFLAGS:=-Wall -Wextra -Wsuggest-override -Wnull-dereference -Wshadow -Wold-style-cast -pedantic -lgmp -std=c++20
+CXXFLAGS:=-Wall -Wextra -Wsuggest-override -Wnull-dereference -Wshadow -Wold-style-cast -pedantic -lgmp -std=c++2a
 
 LINK.o = $(LINK.cpp)
 
