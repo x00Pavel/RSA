@@ -7,12 +7,14 @@ using namespace std;
 enum MODE {E,D,B,G} mode;
 
 int main(int argc, char *const argv[]) {
+    
     switch (getopt(argc, argv, ":e:d:b:g:h"))                            
     {
         case 'g':
         {
             mode = G;
             int size;
+            
             try {
                 size = stoi(optarg);
             }
@@ -22,10 +24,7 @@ int main(int argc, char *const argv[]) {
             }
 
             rsa_options opts = {size, 0, 0, 0, 0, 0};
-            generate_options(&opts);
-
-            cout << "P is: " << opts.p << endl;
-            
+            generate_options(&opts);            
             break;
         }
         case '?':
