@@ -5,7 +5,7 @@ XLOGINXX=xyadlo00
 OBJ=src/*
 BIN=kry
 
-CXXFLAGS:=-Wall -Wextra -Wsuggest-override -Wnull-dereference -Wshadow -Wold-style-cast -pedantic -lgmp -std=c++2a
+CXXFLAGS:=-Wall -Wextra -Wsuggest-override -Wnull-dereference -Wshadow -Wold-style-cast -pedantic -std=c++2a
 
 LINK.o = $(LINK.cpp)
 
@@ -16,7 +16,7 @@ debug: CXXFLAGS += -g3 -fsanitize=address,undefined -fno-omit-frame-pointer
 debug: kry
 
 kry: $(OBJ)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJ) -o $(BIN)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJ) -o $(BIN) -lgmp
 
 pack:
 	zip $(XLOGINXX).zip *.cpp *.hpp  Makefile doc.pdf
