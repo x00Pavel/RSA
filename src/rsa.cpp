@@ -1,76 +1,98 @@
-#include <iostream>
-#include <math.h>
-#include <gmpxx.h>
 #include "rsa.hpp"
-#include <algorithm>
+
+#include <gmpxx.h>
+#include <math.h>
+
+#include <iostream>
+
+#include "main.hpp"
+
+#define ui unsigned int
 
 using namespace std;
 
-unsigned short int first_primes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 
-                                     37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
-                                     79, 83, 89, 97};
-
-unsigned long int p, q, n;
-
-
-// long int gcd(long int a, long int b){
-//     int tmp;
-//     do{
-//         tmp = a % b;
-//         a = b;
-//         b = tmp;
-//     } while (tmp != 0);
-//     return b;
-// }
-
-
-bool is_prime(unsigned long int n)
-{
-    for (int p : first_primes){ 
-        if ((n % p) == 0) return false;
+static mpz_class gcd(mpz_class a, mpz_class b) {
+    mpz_class t;
+    while (1) {
+        mpz_mod(t.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
+        if (t == 0) return b;
+        a = b;
+        b = t;
     }
-    
-
 }
 
+static bool MillerPrimes(const mpz_class &n, const size_t rounds,
+                         gmp_randclass *rr) {
+    // Treat n==1, 2, 3 as a primes
+    if (n == 1 || n == 2 || n == 3) return true;
 
-void generate_random(unsigned long *p, unsigned long *q){
-    mpz_t num, l;
-    gmp_randstate_t st;
+    // Treat negative numbers in the frontend
+    if (n <= 0) return false;
+
+    // Even numbers larger than two cannot be prime
+    if ((n & 1) == 0) return false;
+
+    // Write n-1 as d*2^s by factoring powers of 2 from n-1
+    size_t s = 0;
+    {
+        mpz_class m = n - 1;
+        while ((m & 1) == 0) {
+            ++s;
+            m >>= 1;
+        }
+    }
+    const mpz_class d = (n - 1) / (mpz_class(1) << s);
+
+    for (size_t i = 0; i < rounds; ++i) {
+        const mpz_class a = rr->get_z_range(n - 1);
+
+        mpz_class x;
+        mpz_powm(x.get_mpz_t(), a.get_mpz_t(), d.get_mpz_t(), n.get_mpz_t());
+
+        if (x == 1 || x == (n - 1)) continue;
+
+        for (size_t r = 0; r < (s - 1); ++r) {
+            mpz_powm_ui(x.get_mpz_t(), x.get_mpz_t(), 2, n.get_mpz_t());
+            if (x == 1) {
+                // Definitely not a prime
+                return false;
+            }
+            if (x == n - 1) break;
+        }
+
+        if (x != (n - 1)) {
+            // Definitely not a prime
+            return false;
+        }
+    }
+
+    // Might be prime
+    return true;
+}
+
+void generate_random(mpz_class *p, mpz_class *q, const size_t size,
+                     gmp_randclass *rr) {
+    do {
+        *p = rr->get_z_bits(size);
+    } while (!MillerPrimes(*p, 10, rr));
+
+    do {
+        *q = rr->get_z_bits(size);
+    } while (!MillerPrimes(*q, 10, rr));
+}
+
+void generate_options(RSAParams *params) {
+    gmp_randclass *r = new gmp_randclass(gmp_randinit_default);
+    mpz_class e, phi_n;
+    r->seed(time(nullptr));
+    generate_random(&(params->p), &(params->q), params->size / 2, r);
+
+    params->n = params->p * params->q;
+    phi_n = (params->p - 1) * (params->q - 1);
     
-    mpz_init(num);
-    // mpz_init(l);
-    unsigned long seed = time(nullptr);
-    cout << "Seed is " << seed << endl;
-
-    // mpz_ui_pow_ui(l, 2, 199);
-
-    gmp_randinit_mt(st);
-    gmp_randseed_ui(st, seed);
-
     do{
-        mpz_urandomb(num, st, 32);
-        *p = mpz_get_ui(num);
-    } while (!is_prime(*p));
-    
+        e = r->get_z_range(phi_n) + 1;
+    } while(gcd(e, phi_n) != 1);
 
-    // mpz_urandomb(num, st, 32);
-    // *q = mpz_get_ui(num);
-    
-    gmp_randclear(st);
-    mpz_clear(num);
-}
-
-void generate_options(rsa_options *opts){
-    generate_random(&(opts->p), &(opts->q));
-    // generate_prime(&(opts->q), opts->size);
-    // generate_prime(&(opts->p), opts->size);
-    printf("p: %lu\nq: %lu\n", opts->p, opts->q);
-    opts->n = opts->q * opts->q;
-    long int phi_n = (opts->q - 1) * (opts->q - 1);
-    long int e = 1 + (random() % phi_n);
-    // do{
-    //     e = 1 + (random() % phi_n);
-    // }
-    // while (gcd(e,phi_n) != 1);
+    delete (r);
 }
