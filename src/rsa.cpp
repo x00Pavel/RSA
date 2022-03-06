@@ -23,16 +23,8 @@ static mpz_class gcd(mpz_class a, mpz_class b) {
 
 static bool MillerPrimes(const mpz_class &n, const size_t rounds,
                          gmp_randclass *rr) {
-    // Treat n==1, 2, 3 as a primes
-    if (n == 1 || n == 2 || n == 3) return true;
 
-    // Treat negative numbers in the frontend
-    if (n <= 0) return false;
-
-    // Even numbers larger than two cannot be prime
-    if ((n & 1) == 0) return false;
-
-    // Write n-1 as d*2^s by factoring powers of 2 from n-1
+    if ((n & 1) == 0) return false; // if number is even, return false
     size_t s = 0;
     {
         mpz_class m = n - 1;
@@ -53,20 +45,12 @@ static bool MillerPrimes(const mpz_class &n, const size_t rounds,
 
         for (size_t r = 0; r < (s - 1); ++r) {
             mpz_powm_ui(x.get_mpz_t(), x.get_mpz_t(), 2, n.get_mpz_t());
-            if (x == 1) {
-                // Definitely not a prime
-                return false;
-            }
+            if (x == 1) return false;
             if (x == n - 1) break;
         }
 
-        if (x != (n - 1)) {
-            // Definitely not a prime
-            return false;
-        }
+        if (x != (n - 1)) return false;
     }
-
-    // Might be prime
     return true;
 }
 
