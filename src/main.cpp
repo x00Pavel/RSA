@@ -27,11 +27,17 @@ int main(int argc, char *const argv[]) {
             generate_options(params);
 
             LOG("Values are");
-            cout<<"P: 0x"<<params->p.get_str(16)<<endl;
-            cout<<"Q: 0x"<<params->q.get_str(16)<<endl;
-            cout<<"N: 0x"<<params->n.get_str(16)<<endl;
-            cout<<"E: 0x"<<params->e.get_str(16)<<endl;
-            cout<<"D: 0x"<<params->d.get_str(16)<<endl;
+            LOG("P: 0x"<<params->p.get_str(16));
+            LOG("Q: 0x"<<params->q.get_str(16));
+            LOG("N: 0x"<<params->n.get_str(16));
+            LOG("E: 0x"<<params->e.get_str(16));
+            LOG("D: 0x"<<params->d.get_str(16));
+            cout << "0x"<<params->p.get_str(16) 
+                 << " 0x"<<params->q.get_str(16) 
+                 << " 0x"<<params->n.get_str(16) 
+                 << " 0x"<<params->e.get_str(16) 
+                 << " 0x"<<params->d.get_str(16)
+                 << endl;
             break;
         }
         case 'e':
@@ -47,7 +53,6 @@ int main(int argc, char *const argv[]) {
                                        n_.get_mpz_t(),
                                        msg.get_mpz_t());
             
-            LOG("Cypher is");
             cout << "0x" <<cypher.get_str(16) << endl;
 
             break;
@@ -65,9 +70,15 @@ int main(int argc, char *const argv[]) {
                                        n_.get_mpz_t(),
                                        msg.get_mpz_t());
             
-            LOG("Text is");
-            cout << "0x" << text.get_str(16) << endl;
+            cout << "0x"<<text.get_str(16) << endl;
 
+            break;
+        }
+        case 'b':
+        {   
+            string n_str(optarg);
+            mpz_class n_(n_str.substr(2));
+            // factorisation();
             break;
         }
         case '?':
