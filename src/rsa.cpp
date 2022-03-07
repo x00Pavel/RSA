@@ -21,6 +21,33 @@ static mpz_class gcd(mpz_class a, mpz_class b) {
     }
 }
 
+
+static mpz_class modInverse(mpz_class a, mpz_class m)
+{
+    mpz_class m0 = m, y = 0, x = 1;
+ 
+    if (m == 1) return 0;
+ 
+    while (a > 1) {
+        // q is quotient
+        mpz_class q = a / m, t = m;
+ 
+        // m is remainder now, process same as
+        // Euclid's algo
+        m = a % m, a = t;
+        t = y;
+ 
+        // Update y and x
+        y = x - q * y;
+        x = t;
+    }
+ 
+    // Make x positive
+    if (x < 0) x += m0;
+ 
+    return x;
+}
+
 static bool MillerPrimes(const mpz_class &n, const size_t rounds,
                          gmp_randclass *rr) {
 
@@ -67,7 +94,7 @@ void generate_random(mpz_class *p, mpz_class *q, const size_t size,
 
 void generate_options(RSAParams *params) {
     gmp_randclass *r = new gmp_randclass(gmp_randinit_default);
-    mpz_class e, phi_n;
+    mpz_class phi_n;
     r->seed(time(nullptr));
     generate_random(&(params->p), &(params->q), params->size / 2, r);
 
@@ -75,8 +102,10 @@ void generate_options(RSAParams *params) {
     phi_n = (params->p - 1) * (params->q - 1);
     
     do{
-        e = r->get_z_range(phi_n) + 1;
-    } while(gcd(e, phi_n) != 1);
+        params->e = r->get_z_range(phi_n) + 1;
+    } while(gcd(params->e, phi_n) != 1);
+
+    params->d = modInverse(params->e, phi_n);
 
     delete (r);
 }
