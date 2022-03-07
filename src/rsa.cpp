@@ -124,51 +124,29 @@ mpz_class decrypt(mpz_t d, mpz_t n, mpz_t cypher)
     return text;
 }
 
-mpz_class basic_factorisation(mpz_class n)
-{   
-    int arr[1000000];
-    for (int i = 0; i<1000000; i++) arr[i] = i+2;
-    
-    mpz_class factor;
-    mpz_class tmp;
-    for (int j: arr){
-        if (mpz_mod_ui(tmp.get_mpz_t(), n.get_mpz_t(), j) == 0) return j;
-    }
-
-    return factor;
-}
 
 mpz_class PollardRho_factorisation(mpz_class n, gmp_randclass *r)
-{       
-    /* no prime divisor for 1 */
-    if (n==1) return n;
- 
-    /* even number means one of the divisors is 2 */
+{        
+    // even number
     if ((n & 1) == 0) return 2;
  
-    /* we will pick from the range [2, N) */
+    // range [2, N)
     mpz_class x = r->get_z_range(n-2)+2;
     mpz_class y = x;
  
-    /* the constant in f(x).
-     * Algorithm can be re-run with a different c
-     * if it throws failure for a composite. */
     mpz_class c = r->get_z_range(n-1)+1;
  
-    /* Initialize candidate divisor (or result) */
     mpz_class d = 1; 
  
-    /* until the prime factor isn't obtained.
-       If n is prime, return n */
     mpz_class tmp1;
     while (d==1)
     {
-        /* Tortoise Move: x(i+1) = f(x(i)) */
+        // x(i+1) = f(x(i))
         mpz_powm_ui(tmp1.get_mpz_t(), x.get_mpz_t(), 2, n.get_mpz_t());
         tmp1 = tmp1 + c + n; 
         mpz_mod(x.get_mpz_t(), tmp1.get_mpz_t(), n.get_mpz_t());
 
-        /* Hare Move: y(i+1) = f(f(y(i))) */
+        // y(i+1) = f(f(y(i)))
         mpz_powm_ui(tmp1.get_mpz_t(), y.get_mpz_t(), 2, n.get_mpz_t());
         tmp1 = tmp1 + c + n; 
         mpz_mod(y.get_mpz_t(), tmp1.get_mpz_t(), n.get_mpz_t());
@@ -176,12 +154,11 @@ mpz_class PollardRho_factorisation(mpz_class n, gmp_randclass *r)
         tmp1 = tmp1 + c + n; 
         mpz_mod(y.get_mpz_t(), tmp1.get_mpz_t(), n.get_mpz_t());
 
-        /* check gcd_ of |x-y| and n */
+        // check gcd_ of abs(x-y) and n
         d = gcd_(abs(x-y), n);
  
-        /* retry if the algorithm fails to find prime factor
-         * with chosen x and c */
-        if (d==n) return PollardRho_factorisation(n, r);
+        // retry if the algorithm fails to find prime factor with chosen x and c
+        if (d == n) return PollardRho_factorisation(n, r);
     }
     return d;
 }

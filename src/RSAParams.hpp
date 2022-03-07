@@ -8,6 +8,6 @@ public:
     size_t size;
     mpz_class p, q, n, e, d;
 
-    RSAParams(int);
+    explicit RSAParams(int);
     ~RSAParams();
 };
