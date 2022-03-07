@@ -124,3 +124,17 @@ mpz_class decrypt(mpz_t d, mpz_t n, mpz_t cypher)
     mpz_powm(text.get_mpz_t(), cypher, d, n);
     return text;
 }
+
+mpz_class basic_factorisation(mpz_class n)
+{   
+    int arr[1000000];
+    for (int i = 0; i<1000000; i++) arr[i] = i+2;
+    
+    mpz_class factor;
+    mpz_class tmp;
+    for (int j: arr){
+        if (mpz_mod_ui(tmp.get_mpz_t(), n.get_mpz_t(), j) == 0) return j;
+    }
+
+    return factor;
+}

@@ -77,8 +77,9 @@ int main(int argc, char *const argv[]) {
         case 'b':
         {   
             string n_str(optarg);
-            mpz_class n_(n_str.substr(2));
-            // factorisation();
+            mpz_class n_(n_str.substr(2), 16);
+            mpz_class factor = basic_factorisation(n_);
+            cout << "0x"<<factor.get_str(16) << endl;
             break;
         }
         case '?':
