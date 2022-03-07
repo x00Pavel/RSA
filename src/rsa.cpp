@@ -109,3 +109,18 @@ void generate_options(RSAParams *params) {
 
     delete (r);
 }
+
+
+mpz_class encrypt(mpz_t e, mpz_t n, mpz_t msg)
+{   
+    mpz_class cypher;
+    mpz_powm(cypher.get_mpz_t(), msg, e, n);
+    return cypher;
+}
+
+mpz_class decrypt(mpz_t d, mpz_t n, mpz_t cypher)
+{
+    mpz_class text;
+    mpz_powm(text.get_mpz_t(), cypher, d, n);
+    return text;
+}
