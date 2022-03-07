@@ -1,4 +1,8 @@
+ifneq (, $(shell which g++-8 &> /dev/null ))
 CXX=g++-8
+else
+CXX=g++
+endif
 #CXX=clang
 XLOGINXX=xyadlo00
 
